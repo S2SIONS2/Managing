@@ -6,7 +6,7 @@ export default function LoginNav() {
             <Link href={'/'}>Managing</Link>
             <div className="flex">
                 <Link href={'/login'} className="mr-[10px]">Login</Link>
-                <Link href={'/signup'}>Signup</Link>
+                <Link href={'/signup'}>Sign Up</Link>
             </div>
         </nav>
     )

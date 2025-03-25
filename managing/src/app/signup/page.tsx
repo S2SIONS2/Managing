@@ -5,6 +5,8 @@ import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+// import Image from 'next/image'
+// import googleIcon from '../../../public/google.png'
 
 export default function Page() {
     const [errorMsg, setErrorMsg] = useState('');
@@ -116,7 +118,7 @@ export default function Page() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`w-full py-2 px-4 rounded-md transition ${
+                        className={`w-full py-2 px-4 rounded-md transition cursor-pointer ${
                             isLoading
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -128,12 +130,15 @@ export default function Page() {
                     </div>
                 </form>
 
-                <div className="mt-6 text-center">
+                {/* <div className="mt-6 text-center">
                     <button type="button"
-                        className="w-full py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100 transition">
-                        Gmail로 로그인
+                        className="w-full py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100 transition flex items-center justify-center gap-[5px]">
+                        <span>
+                            <Image src={googleIcon} alt="google logo image" width={20}/>
+                        </span>
+                        구글 로그인
                     </button>
-                </div>
+                </div> */}
             </main>
         </div>
     );
