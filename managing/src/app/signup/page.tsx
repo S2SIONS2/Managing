@@ -7,15 +7,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
-    const [errorMsg, setErrorMsg] = useState(''); // 비밀번호 체크 메세지
-    const [errorStatus, setErrorStatus] = useState(0); // 회원가입 오류 코드
+    const [errorMsg, setErrorMsg] = useState('');
+    const [errorStatus, setErrorStatus] = useState(0);
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false); // 회원가입 버튼 중복 방지
 
-    // 회원가입
     async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setErrorMsg(''); // 초기화
-        setErrorStatus(0)
+        setErrorMsg('');
+        setErrorStatus(0);
+        setIsLoading(true);
 
         const formData = new FormData(e.currentTarget);
         const name = formData.get('name') as string;
@@ -25,6 +26,7 @@ export default function Page() {
 
         if (password !== checkPw) {
             setErrorMsg('비밀번호가 일치하지 않습니다.');
+            setIsLoading(false);
             return;
         }
 
@@ -39,74 +41,99 @@ export default function Page() {
         });
 
         if (error?.message.includes('User already registered')) {
-            setErrorStatus(422-1)
+            setErrorStatus(421); // 중복 이메일
             return;
-        }else if (error?.message.includes('Password should be at least 6 characters.')) {
-            setErrorStatus(422-2)
+        } else if (error?.message.includes('Password should be at least 6 characters')) {
+            setErrorStatus(422); // 비밀번호 약함
             return;
-        }else if(error?.status === 400) {
-            setErrorStatus(400)
-        }else if(!error){
-            setErrorMsg('')
-            setErrorStatus(0)
-            alert('회원가입이 완료되었습니다.')
+        } else if (error?.status === 400) {
+            setErrorStatus(400);
+        } else if (!error) {
+            alert('회원가입이 완료되었습니다.');
             router.push('/login');
         }
 
+        setIsLoading(false);
     }
 
     return (
-        <div>
+        <div className="min-h-screen bg-gray-50">
             <LoginNav />
-            <main>
-                <h2>회원가입</h2>
-                <Link href={'/login'}>계정이 있으신가요? 로그인 하러 가기</Link>
+            <main className="max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-md">
+                <h2 className="text-2xl font-bold mb-4 text-center">회원가입</h2>
+                <p className="text-center text-sm mb-6">
+                    <Link href="/login" className="text-blue-600 hover:underline">
+                        이미 계정이 있으신가요? 로그인 하러 가기 →
+                    </Link>
+                </p>
 
-                <form onSubmit={handleSignup}>
+                <form onSubmit={handleSignup} className="space-y-5">
+                    {/* 이름 */}
                     <div>
-                        <p>이름</p>
-                        <input type="text" name="name" className="border-1 border-solid border-line-400 rounded-sm"  required placeholder="name" />
+                        <label htmlFor="name" className="block text-sm font-medium mb-1">이름</label>
+                        <input type="text" name="name" required placeholder="이름을 입력하세요"
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                     </div>
+
+                    {/* 이메일 */}
                     <div>
-                        <p>이메일</p>
-                        <input type="email" name="email" className="border-1 border-solid border-line-400 rounded-sm"  required placeholder="email" />                        
-                        {
-                            errorStatus === 400 ? (
-                                <p className="text-red-500">아이디는 id@email.com 형식으로 해주세요.</p>
-                            ) : (
-                                <p></p>
-                            )
-                        }
-                        {
-                            errorStatus === 422-1 ? (
-                                <p className="text-red-500">이미 존재하는 이메일입니다.</p>
-                            ) : (
-                                <p></p>
-                            )
-                        }
+                        <label htmlFor="email" className="block text-sm font-medium mb-1">이메일</label>
+                        <input type="email" name="email" required placeholder="email@example.com"
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {errorStatus === 400 && (
+                            <p className="text-sm text-red-500 mt-1">이메일 형식을 확인해주세요.</p>
+                        )}
+                        {errorStatus === 421 && (
+                            <p className="text-sm text-red-500 mt-1">이미 존재하는 이메일입니다.</p>
+                        )}
                     </div>
+
+                    {/* 비밀번호 */}
                     <div>
-                        <p>비밀번호</p>
-                        <input type="password" name="password" className="border-1 border-solid border-line-400 rounded-sm"  required placeholder="password" />
-                        {
-                            errorStatus === 422-2 ? (
-                                <p className="text-red-500">비밀번호는 6자리 이상 입력해주세요.</p>
-                            ) : (
-                                <p></p>
-                            )
-                        }
+                        <label htmlFor="password" className="block text-sm font-medium mb-1">비밀번호</label>
+                        <input type="password" name="password" required placeholder="비밀번호"
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {errorStatus === 422 && (
+                            <p className="text-sm text-red-500 mt-1">비밀번호는 6자리 이상 입력해주세요.</p>
+                        )}
                     </div>
+
+                    {/* 비밀번호 확인 */}
                     <div>
-                        <p>비밀번호 확인</p>
-                        <input type="password" name="checkPw" className="border-1 border-solid border-line-400 rounded-sm"  required placeholder="confirm password" />
-                        {errorMsg && <p className="text-red-500">{errorMsg}</p>}
+                        <label htmlFor="checkPw" className="block text-sm font-medium mb-1">비밀번호 확인</label>
+                        <input type="password" name="checkPw" required placeholder="비밀번호 확인"
+                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {errorMsg && (
+                            <p className="text-sm text-red-500 mt-1">{errorMsg}</p>
+                        )}
                     </div>
+
                     <div>
-                        <button type="submit">회원가입</button>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={`w-full py-2 px-4 rounded-md transition ${
+                            isLoading
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                        >
+                        {isLoading ? '가입 중...' : '회원가입'}
+                    </button>
+
                     </div>
                 </form>
 
-                <button type="submit">Gmail로 로그인</button>
+                <div className="mt-6 text-center">
+                    <button type="button"
+                        className="w-full py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100 transition">
+                        Gmail로 로그인
+                    </button>
+                </div>
             </main>
         </div>
     );
