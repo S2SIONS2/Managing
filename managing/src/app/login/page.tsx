@@ -40,7 +40,7 @@ export default function Page() {
     return (
         <div>
             <LoginNav />
-            <main className="max-w-md mx-auto mt-10 p-4">
+            <main className="max-w-md mx-auto mt-10 p-4 shadow-md bg-white">
                 <h2 className="text-2xl font-bold mb-4 text-center">로그인</h2>
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>
